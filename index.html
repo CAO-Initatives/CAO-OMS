@@ -1,0 +1,195 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CAO OMS Login</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body {
+      font-family: Segoe UI, Arial, sans-serif;
+      background: #f5f7fb;
+      color: #111827;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .card {
+      width: min(420px, 100%);
+      background: #ffffff;
+      border: 1px solid #dbe3ee;
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 16px 36px rgba(15, 23, 42, 0.10);
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 24px;
+      color: #0f172a;
+    }
+    p {
+      margin: 0 0 16px;
+      font-size: 14px;
+      color: #475569;
+      line-height: 1.5;
+    }
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      color: #64748b;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      font-size: 15px;
+      outline: none;
+    }
+    input:focus {
+      border-color: #1f5fb8;
+      box-shadow: 0 0 0 3px rgba(31, 95, 184, 0.12);
+    }
+    .row {
+      display: flex;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    button {
+      appearance: none;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .primary {
+      flex: 1;
+      background: #1f5fb8;
+      color: #fff;
+    }
+    .secondary {
+      background: #eef4fb;
+      color: #15366d;
+      border: 1px solid #d7e4f6;
+    }
+    .error, .success {
+      display: none;
+      margin-top: 14px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .error {
+      background: #fff1f2;
+      border: 1px solid #fecdd3;
+      color: #9f1239;
+    }
+    .success {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      color: #166534;
+    }
+    .foot {
+      margin-top: 16px;
+      font-size: 12px;
+      color: #64748b;
+    }
+    code {
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 1px 5px;
+      font-family: Consolas, monospace;
+      font-size: 12px;
+    }
+    @media (max-width: 480px) {
+      .row { flex-direction: column; }
+      button { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>CAO OMS Login</h1>
+    <p>Enter the password to continue.</p>
+
+    <label for="password">Password</label>
+    <input id="password" type="password" placeholder="Enter password" autocomplete="current-password" />
+
+    <div class="row">
+      <button id="openBtn" class="primary" type="button">Open OMS</button>
+      <button id="resetBtn" class="secondary" type="button">Clear Session</button>
+    </div>
+
+    <div id="errorBox" class="error">Incorrect password.</div>
+    <div id="successBox" class="success">Access granted. Redirecting…</div>
+
+    <div class="foot">If your OMS app file is not named <code>oms.html</code>, update the <code>TARGET_URL</code> line in this file.</div>
+  </div>
+
+  <script>
+    (function(){
+      const TARGET_URL = './oms.html';
+      const SITE_PASSWORD = 'CAO-OMS-2026!';
+      const ACCESS_KEY = 'cao_oms_gate_access';
+
+      const $ = (id) => document.getElementById(id);
+      const passwordInput = $('password');
+      const openBtn = $('openBtn');
+      const resetBtn = $('resetBtn');
+      const errorBox = $('errorBox');
+      const successBox = $('successBox');
+
+      function clearMessages(){
+        errorBox.style.display = 'none';
+        successBox.style.display = 'none';
+      }
+      function grantAccess(){
+        localStorage.setItem(ACCESS_KEY, 'ok');
+        clearMessages();
+        successBox.style.display = 'block';
+        window.location.href = TARGET_URL;
+      }
+      function checkStoredAccess(){
+        if(localStorage.getItem(ACCESS_KEY) === 'ok'){
+          successBox.style.display = 'block';
+          successBox.textContent = 'Existing session found. Redirecting…';
+          window.location.href = TARGET_URL;
+        }
+      }
+      function submit(){
+        clearMessages();
+        if(passwordInput.value === SITE_PASSWORD){
+          grantAccess();
+        } else {
+          errorBox.style.display = 'block';
+          passwordInput.value = '';
+          passwordInput.focus();
+        }
+      }
+      openBtn.addEventListener('click', submit);
+      resetBtn.addEventListener('click', function(){
+        localStorage.removeItem(ACCESS_KEY);
+        clearMessages();
+        passwordInput.value = '';
+        passwordInput.focus();
+      });
+      passwordInput.addEventListener('keydown', function(e){
+        if(e.key === 'Enter') submit();
+      });
+      setTimeout(() => passwordInput.focus(), 60);
+      checkStoredAccess();
+    })();
+  </script>
+</body>
+</html>
